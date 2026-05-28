@@ -54,22 +54,50 @@ jobs:
           }
         shell: pwsh
 
-      # Step 6: Create a new GitHub Release and upload the standalone .exe asset
+      # Step 6: Compile Inno Setup Installer (.exe setup wizard)
+      - name: Compile Inno Setup Installer
+        run: |
+          iscc installer.iss
+        shell: pwsh
+
+      # Step 7: Verify Inno Setup Installer Built
+      - name: Verify Setup Installer Built
+        run: |
+          if (Test-Path "dist_installer/Content_Studio_AI_Setup.exe") {
+            echo "[+] Inno Setup installer compiled successfully!"
+          } else {
+            echo "[!] Error: Setup installer missing!"
+            exit 1
+          }
+        shell: pwsh
+
+      # Step 8: Create a new GitHub Release and upload both assets
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/Content_Studio_AI.exe
+          files: |
+            dist/Content_Studio_AI.exe
+            dist_installer/Content_Studio_AI_Setup.exe
           tag_name: ${{ github.ref_name }}
           name: Content Studio AI Release ${{ github.ref_name }}
           body: |
-            ## 🚀 Content Studio AI - Windows Desktop Update
+            ## 🚀 Content Studio AI - Windows Desktop Release
+
+            This is an automated compilation of the standalone Windows Desktop application and its setup wizard installer.
+
+            ### 📦 Download Options:
             
-            This is an automated compilation of the standalone Windows Desktop application.
+            1. **`Content_Studio_AI_Setup.exe` (Recommended)**
+               * Standard Windows Setup wizard. 
+               * Automatically installs the application, adds Start Menu/Desktop shortcuts, pre-creates required directories, and packages default configurations.
             
-            ### 📦 Download Instructions:
-            1. Download the **`Content_Studio_AI.exe`** file below.
-            2. Run it locally on your Windows 10/11 system.
-            
+            2. **`Content_Studio_AI.exe`**
+               * Standalone portable executable.
+               * Runs immediately without installation.
+
+            ### 🛠️ Execution:
+            * Run locally on Windows 10/11 systems.
+
             *Automatically compiled and deployed by GitHub Actions CI/CD.*
           draft: false
           prerelease: false

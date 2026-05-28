@@ -19,8 +19,6 @@ __pycache__/
 build/
 dist/
 dist_installer/
-*.spec
-*.iss
 
 # === Local Data Caching & Databases ===
 data/
