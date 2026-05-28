@@ -76,6 +76,15 @@ class Settings(BaseSettings):
     CSV_DIR: str = os.path.join(APP_DATA_DIR, "csv")
     JSON_DIR: str = os.path.join(APP_DATA_DIR, "json")
 
+    def __init__(self, **values):
+        super().__init__(**values)
+        # Defensive code: Automatically strip trailing/leading newlines and spaces (\n, \r)
+        self.YOUTUBE_API_KEY = self.YOUTUBE_API_KEY.strip() if self.YOUTUBE_API_KEY else ""
+        self.SERP_API_KEY = self.SERP_API_KEY.strip() if self.SERP_API_KEY else ""
+        self.REDDIT_CLIENT_ID = self.REDDIT_CLIENT_ID.strip() if self.REDDIT_CLIENT_ID else ""
+        self.REDDIT_CLIENT_SECRET = self.REDDIT_CLIENT_SECRET.strip() if self.REDDIT_CLIENT_SECRET else ""
+        self.OPENAI_API_KEY = self.OPENAI_API_KEY.strip() if self.OPENAI_API_KEY else ""
+
     class Config:
         env_file = ENV_PATH
         extra = "ignore"
