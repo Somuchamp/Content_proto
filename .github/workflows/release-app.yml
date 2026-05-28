@@ -54,13 +54,19 @@ jobs:
           }
         shell: pwsh
 
-      # Step 6: Compile Inno Setup Installer (.exe setup wizard)
+      # Step 6: Create a dummy .env file for the installer packaging (keeps it secure and prevents ISCC failure)
+      - name: Create Dummy .env
+        run: |
+          New-Item -Path ".env" -ItemType "file" -Value "# E-Commerce Content Studio AI Configuration Template`n"
+        shell: pwsh
+
+      # Step 7: Compile Inno Setup Installer (.exe setup wizard)
       - name: Compile Inno Setup Installer
         run: |
           iscc installer.iss
         shell: pwsh
 
-      # Step 7: Verify Inno Setup Installer Built
+      # Step 8: Verify Inno Setup Installer Built
       - name: Verify Setup Installer Built
         run: |
           if (Test-Path "dist_installer/Content_Studio_AI_Setup.exe") {
@@ -71,7 +77,7 @@ jobs:
           }
         shell: pwsh
 
-      # Step 8: Create a new GitHub Release and upload both assets
+      # Step 9: Create a new GitHub Release and upload both assets
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v1
         with:
