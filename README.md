@@ -67,14 +67,45 @@ graph TD
 
 ## 🚀 Key Features
 
-* **Multi-Platform Scrape Aggregation**: Concurrent threaded scraping of YouTube, Google SERP, Reddit, and forums to aggregate consumer intents.
-* **Deep SEO Analytics (DataForSEO)**: In-depth keyword research, search suggestions, also-rank-for metrics, competitor footprint, and automated site audit crawlers.
-* **Strategic Content Generation**:
-  * **📂 Category Page Mode**: Highly optimized for category navigation and product list SEO.
-  * **🏷️ Brand Page Mode**: Structured brand highlights and product feature analysis.
-  * **📝 Blog/Keyword Mode**: Comprehensive educational articles with organic Ubuy cross-border marketplace interlinking.
-* **Centralized Data Storage**: Reads and writes directly to optimized JSON reports and CSV keyword lists in the system's `Local AppData` directory to resolve Windows permission constraints.
-* **Automated Background Refresh**: Uses `APScheduler` to run daily, weekly, monthly, or customized hourly content update loops.
+### 📡 1. Concurrent Market Scrape Aggregation
+* **Threaded Scraper Engine**: Leverages a high-performance `ThreadPoolExecutor` to scrape multiple channels in parallel, drastically reducing user wait-times.
+* **Google SERP Mining**: Extracts top ranking organic sites, **People Also Ask (PAA)** questions, and **Related Searches / People Also Search For** chips.
+* **SERP Rich Feature Parser**:
+  * **Popular Products Grids**: Gathers immersive Google Shopping cards containing thumbnails, titles, sources, ratings, and pricing.
+  * **Inline Videos**: Collects duration, channel name, video title, and link metadata from organic search videos.
+  * **Google AI Overviews**: Extracts the direct Google AI text block summaries along with their referenced source links.
+* **YouTube Signals Scraper**: Collects top-ranking video titles, descriptions, and channel URLs matching your keywords to understand visual media traction.
+* **Reddit PRAW Scraper**: Crawls relevant tech/topic subreddits to analyze hot consumer threads, popular comments, and direct buyer pain-points.
+* **Forum Crawler**: Employs `BeautifulSoup` and `cloudscraper` (to bypass Cloudflare restrictions) to gather community forum discussions on Quora and Medium.
+
+### 🧠 2. DataForSEO Analytics Integration
+* **Advanced Keyword Research**: Retrieves live Search Volume, Cost-Per-Click (CPC), Competition levels, and SEO difficulty scores for targeted words.
+* **Long-Tail Keyword Expansion**:
+  * **Google Live Autocomplete**: Gathers long-tail expansion chips from direct Google autocomplete query feeds.
+  * **Related Keywords ("Also Rank For")**: Pulls keywords that similar top-performing competitors are actively ranking for.
+* **Competitor Analytics Batch**: Runs batch evaluations on competing domains to retrieve ETV (Estimated Traffic Value), organic keywords footprint, and domain authority.
+* **LLM Mentions Tracker**: Scans AI search engines (ChatGPT, etc.) to analyze direct brand citations, platform answers, and search volumes.
+* **On-Page Site Audit Crawler**: Boots asynchronous page crawlers to calculate domain health scores, reporting broken links/resources, duplicate content, missing tags, or redirect loops.
+
+### ✍️ 3. Strategic AI Content Synthesizer
+* **GPT-4o-Mini Orchestration**: Harnesses OpenAI's optimized language models with custom-tailored strategic prompt layouts.
+* **Automatic JSON Sanitizer**: Custom regex-based escape interceptor that automatically sanitizes unescaped newlines/tabs inside generated JSON structures to prevent parsing failures.
+* **Three Dedicated Generation Strategies**:
+  * **📂 Category Page Mode**: Optimizes structural category hierarchies, user buying guides, and keyword density mapping.
+  * **🏷️ Brand Page Mode**: Focuses on brand highlighting, product catalog ratings, and key comparative advantages.
+  * **📝 Blog / Keyword Mode**: Generates long-form, highly readable blog posts featuring proper hooks, informational headers, and natural interlinking.
+* **Cross-Border Ubuy Integration**: Embeds natural, editorial product references and marketplace shipping integrations specific to the target country (EEAT compliant).
+* **Defensive Key Stripper**: Automatically sanitizes trailing newlines (`\n`, `\r`) and whitespaces from API secrets in `Settings` to completely prevent `Illegal Header` or `Bad Request` crashes.
+
+### 🖥️ 4. Premium Windows Desktop Client
+* **Obsidian Space Theme**: A gorgeous dark UI accented with glowing neon-cyan components.
+* **Custom TK Components**: Embedded custom `CanvasEntry` boxes with active glowing borders, `CanvasDropdown` fields with real-time text filter searches, and concentric `CanvasSlider` scales with active neon halos.
+* **Vault & Research Portals**: Interactive multi-tab panel separating your local **Strategy Vault** (collapsible report sections, quick-copy clipboards) from the live **Research Hub** (keyword tables, competitor batch checkers, and settings).
+* **Self-Healing Update System**: Employs background threads to poll your GitHub Releases API, presenting download prompts for new versions, and running local `updater.bat` batch files to overwrite and relaunch the application seamlessly.
+
+### 📁 5. Centralized Data Storage & Scheduler
+* **AppData Caching**: Resolves standard Windows `Program Files` permission locks by storing database JSON reports and CSV keyword lists in the user's `%LocalAppData%/ContentStudioAI/` folder.
+* **APScheduler Automation**: Boots background thread executors inside the FastAPI application, running daily, weekly, monthly, or customized hourly content updates.
 
 ---
 
