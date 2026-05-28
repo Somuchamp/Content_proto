@@ -42,7 +42,7 @@ from app.config import ENV_PATH, ENV_DIR, APP_LOG_PATH
 load_dotenv(dotenv_path=ENV_PATH)
 
 # Application Versioning & Auto-Update Configuration
-APP_VERSION = "1.0.3"
+APP_VERSION = "1.0.4"
 GITHUB_USER = os.getenv("GITHUB_USER", "Somuchamp")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "Content_proto")
 
@@ -2736,42 +2736,125 @@ del "%~f0"
     def build_settings_page(self):
         page = ttk.Frame(self.viewport, style='TFrame')
         
-        # Header
+        # Header (static, non-scrollable)
         lbl_frame = ttk.Frame(page, style='TFrame')
-        lbl_frame.pack(fill="x", padx=30, pady=20)
+        lbl_frame.pack(fill="x", padx=30, pady=(20, 10))
         ttk.Label(lbl_frame, text="SETTINGS", style='Header.TLabel').pack(anchor="w")
         ttk.Label(lbl_frame, text="Configure local API integrations and active search environment variables.", style='Subtitle.TLabel').pack(anchor="w", pady=(5, 0))
 
-        # Main settings card container
-        card_frame = tk.Frame(page, bg=BG_SECONDARY, bd=0, highlightbackground=BG_BORDER, highlightthickness=1)
-        card_frame.pack(fill="x", padx=30, pady=10)
+        # Create a container frame for canvas and scrollbar
+        container = tk.Frame(page, bg=BG_PRIMARY)
+        container.pack(fill="both", expand=True, padx=30, pady=5)
+        
+        canvas = tk.Canvas(container, bg=BG_PRIMARY, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        
+        # Scrollable inner frame
+        scroll_frame = tk.Frame(canvas, bg=BG_PRIMARY)
+        
+        scroll_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas_window = canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+        
+        # Make the scroll frame stretch to the width of the canvas
+        def configure_canvas_width(event):
+            canvas.itemconfig(canvas_window, width=event.width)
+        canvas.bind("<Configure>", configure_canvas_width)
+        
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Mouse wheel binding for easy scrolling
+        def on_mouse_wheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        
+        # Bind to canvas and all its children recursively on hover
+        def bind_mouse_wheel(widget):
+            widget.bind("<MouseWheel>", on_mouse_wheel)
+            for child in widget.winfo_children():
+                bind_mouse_wheel(child)
+                
+        scroll_frame.bind("<Enter>", lambda _: bind_mouse_wheel(scroll_frame))
 
-        # SerpAPI Key Input
-        input_frame = tk.Frame(card_frame, bg=BG_SECONDARY, padx=25, pady=25)
-        input_frame.pack(fill="x")
+        # Helper function to create section cards
+        def create_section_card(parent, title, desc):
+            card = tk.Frame(parent, bg=BG_SECONDARY, bd=0, highlightbackground=BG_BORDER, highlightthickness=1)
+            card.pack(fill="x", pady=10, ipady=10)
+            
+            header = tk.Frame(card, bg=BG_SECONDARY, padx=25, pady=(15, 10))
+            header.pack(fill="x")
+            
+            tk.Label(header, text=title, font=("Segoe UI", 12, "bold"), fg=ACCENT_CYAN, bg=BG_SECONDARY, anchor="w").pack(fill="x")
+            if desc:
+                tk.Label(header, text=desc, font=("Segoe UI", 9), fg=TEXT_MUTED, bg=BG_SECONDARY, anchor="w").pack(fill="x", pady=(2, 0))
+                
+            return card
 
-        tk.Label(input_frame, text="SerpAPI Key", font=("Segoe UI", 11, "bold"), fg=TEXT_MAIN, bg=BG_SECONDARY, anchor="w").pack(fill="x", pady=(0, 5))
-        tk.Label(input_frame, text="Used to fetch live SERP rankings, Google Shopping products, and autocomplete trends.", font=("Segoe UI", 9), fg=TEXT_MUTED, bg=BG_SECONDARY, anchor="w").pack(fill="x", pady=(0, 10))
+        # Helper to add inputs to section cards
+        def create_api_row(parent, label, description, var_name, placeholder):
+            row = tk.Frame(parent, bg=BG_SECONDARY, padx=25, pady=8)
+            row.pack(fill="x")
+            
+            tk.Label(row, text=label, font=("Segoe UI", 10, "bold"), fg=TEXT_MAIN, bg=BG_SECONDARY, anchor="w").pack(fill="x")
+            if description:
+                tk.Label(row, text=description, font=("Segoe UI", 8), fg=TEXT_MUTED, bg=BG_SECONDARY, anchor="w").pack(fill="x", pady=(2, 5))
+                
+            entry = CanvasEntry(row, placeholder=placeholder)
+            entry.pack(fill="x", pady=2)
+            
+            # Prepopulate value
+            val = os.getenv(var_name, "")
+            if val:
+                entry.entry.delete(0, tk.END)
+                entry.entry.insert(0, val)
+                entry.entry.configure(fg=TEXT_MAIN)
+                
+            return entry
 
-        self.ent_settings_serp = CanvasEntry(input_frame, placeholder="e.g., your_serp_api_key")
-        self.ent_settings_serp.pack(fill="x", pady=5)
+        # -------------------------------------------------------------
+        # CARD 1: Core AI & Search Engine APIs
+        # -------------------------------------------------------------
+        card_core = create_section_card(scroll_frame, "🤖 Core AI & Search Engines", "Configure your core content synthesis, search rankings, and keyword suggestion settings.")
+        self.ent_settings_openai = create_api_row(card_core, "OpenAI API Key", "Required to draft the final markdown copy, answer custom user prompts, and extract main keyword ideas.", "OPENAI_API_KEY", "e.g., sk-proj-...")
+        self.ent_settings_serp = create_api_row(card_core, "SerpAPI Key", "Required to query live Google organic listings, shopping products, inline videos, and search autocompletes.", "SERP_API_KEY", "e.g., your_serp_api_key")
+        self.ent_settings_dataforseo = create_api_row(card_core, "DataForSEO API Key", "Required for search volume analysis and related keywords suggestions.", "DATAFORSEO_API_KEY", "e.g., your_dataforseo_api_key")
 
-        # Prepopulate
-        serp_key = os.getenv("SERP_API_KEY", "")
-        if serp_key:
-            self.ent_settings_serp.entry.delete(0, tk.END)
-            self.ent_settings_serp.entry.insert(0, serp_key)
-            self.ent_settings_serp.entry.configure(fg=TEXT_MAIN)
+        # -------------------------------------------------------------
+        # CARD 2: Social Platforms & Video Research APIs
+        # -------------------------------------------------------------
+        card_social = create_section_card(scroll_frame, "📱 Social Platforms & Video Research", "Configure platform credentials to capture live discussions, public threads, and video metadata.")
+        self.ent_settings_youtube = create_api_row(card_social, "YouTube API Key", "Used to crawl relevant YouTube search videos and descriptions.", "YOUTUBE_API_KEY", "e.g., AIzaSy...")
+        self.ent_settings_reddit_id = create_api_row(card_social, "Reddit Client ID", "Required to scrape subreddit discussions and trending forum comments.", "REDDIT_CLIENT_ID", "e.g., your_reddit_client_id")
+        self.ent_settings_reddit_secret = create_api_row(card_social, "Reddit Client Secret", "Required to authenticate with the Reddit API.", "REDDIT_CLIENT_SECRET", "e.g., your_reddit_client_secret")
 
-        # Save Button
-        save_btn = self.create_modern_button(input_frame, "💾 Save Settings", self.save_settings, primary=True)
-        save_btn.pack(anchor="w", pady=(20, 0))
+        # -------------------------------------------------------------
+        # CARD 3: Google Ads Keyword Planner (Optional)
+        # -------------------------------------------------------------
+        card_ads = create_section_card(scroll_frame, "📊 Google Ads Keyword Planner (Optional)", "Optional credentials for extracting deep keyword ideas and search competition volumes.")
+        self.ent_settings_ads_dev = create_api_row(card_ads, "Developer Token", "Your Google Ads API developer token.", "GOOGLE_ADS_DEVELOPER_TOKEN", "e.g., vVoDZezi...")
+        self.ent_settings_ads_cust = create_api_row(card_ads, "Customer ID", "Format: 123-456-7890 (no spaces or letters).", "GOOGLE_ADS_CUSTOMER_ID", "e.g., 1234567890")
+        self.ent_settings_ads_login = create_api_row(card_ads, "Login Customer ID", "Required if managing account is different from the target account.", "GOOGLE_ADS_LOGIN_CUSTOMER_ID", "e.g., 3076632739")
+        self.ent_settings_ads_client_id = create_api_row(card_ads, "OAuth2 Client ID", "Google Cloud OAuth2 credentials Client ID.", "GOOGLE_ADS_CLIENT_ID", "e.g., xxx.apps.googleusercontent.com")
+        self.ent_settings_ads_client_secret = create_api_row(card_ads, "OAuth2 Client Secret", "Google Cloud OAuth2 credentials Client Secret.", "GOOGLE_ADS_CLIENT_SECRET", "e.g., client_secret")
+        self.ent_settings_ads_refresh = create_api_row(card_ads, "OAuth2 Refresh Token", "Your generated offline refresh token.", "GOOGLE_ADS_REFRESH_TOKEN", "e.g., 1//04mux...")
+
+        # Action Buttons Panel
+        btn_panel = tk.Frame(scroll_frame, bg=BG_PRIMARY, pady=15)
+        btn_panel.pack(fill="x")
+        
+        save_btn = self.create_modern_button(btn_panel, "💾 Save Settings & API Keys", self.save_settings, primary=True)
+        save_btn.pack(side="left")
 
         # -------------------------------------------------------------
         # System Storage & Application Logs Panel
         # -------------------------------------------------------------
-        logs_card = tk.Frame(page, bg=BG_SECONDARY, bd=0, highlightbackground=BG_BORDER, highlightthickness=1)
-        logs_card.pack(fill="both", expand=True, padx=30, pady=(15, 20))
+        logs_card = tk.Frame(scroll_frame, bg=BG_SECONDARY, bd=0, highlightbackground=BG_BORDER, highlightthickness=1)
+        logs_card.pack(fill="both", expand=True, pady=(15, 20))
 
         logs_frame = tk.Frame(logs_card, bg=BG_SECONDARY, padx=25, pady=25)
         logs_frame.pack(fill="both", expand=True)
@@ -2787,7 +2870,6 @@ del "%~f0"
             lbl = tk.Label(parent, text=label_text, font=("Segoe UI", 9, "bold"), fg=TEXT_MUTED, bg=BG_SECONDARY, anchor="w", width=18)
             lbl.grid(row=row_idx, column=0, sticky="w", pady=4)
             
-            # Use a read-only entry so the user can easily select and copy the path
             val_entry = tk.Entry(parent, font=("Segoe UI", 9), fg=TEXT_MAIN, bg="#1c1835", bd=0, highlightthickness=1, highlightbackground=BG_BORDER)
             val_entry.insert(0, path_val)
             val_entry.configure(state="readonly")
@@ -2812,54 +2894,84 @@ del "%~f0"
         preview_container = tk.Frame(logs_frame, bg="#0c0a1a", bd=1, relief="solid", highlightbackground=BG_BORDER, highlightthickness=1)
         preview_container.pack(fill="both", expand=True)
 
-        scrollbar = ttk.Scrollbar(preview_container)
-        scrollbar.pack(side="right", fill="y")
+        scrollbar_text = ttk.Scrollbar(preview_container)
+        scrollbar_text.pack(side="right", fill="y")
 
         self.log_text = tk.Text(
             preview_container, height=6, font=("Consolas", 9),
             bg="#0c0a1a", fg=ACCENT_CYAN, insertbackground=TEXT_MAIN,
-            bd=0, yscrollcommand=scrollbar.set
+            bd=0, yscrollcommand=scrollbar_text.set
         )
         self.log_text.pack(side="left", fill="both", expand=True, padx=8, pady=8)
-        scrollbar.config(command=self.log_text.yview)
+        scrollbar_text.config(command=self.log_text.yview)
         self.log_text.configure(state="disabled")
 
         return page
 
     def save_settings(self):
-        new_key = self.ent_settings_serp.entry.get().strip()
-        if new_key == self.ent_settings_serp.placeholder:
-            new_key = ""
+        # Collect all inputs
+        updates = {
+            "OPENAI_API_KEY": self.ent_settings_openai.entry.get().strip(),
+            "SERP_API_KEY": self.ent_settings_serp.entry.get().strip(),
+            "DATAFORSEO_API_KEY": self.ent_settings_dataforseo.entry.get().strip(),
+            "YOUTUBE_API_KEY": self.ent_settings_youtube.entry.get().strip(),
+            "REDDIT_CLIENT_ID": self.ent_settings_reddit_id.entry.get().strip(),
+            "REDDIT_CLIENT_SECRET": self.ent_settings_reddit_secret.entry.get().strip(),
+            "GOOGLE_ADS_DEVELOPER_TOKEN": self.ent_settings_ads_dev.entry.get().strip(),
+            "GOOGLE_ADS_CUSTOMER_ID": self.ent_settings_ads_cust.entry.get().strip(),
+            "GOOGLE_ADS_LOGIN_CUSTOMER_ID": self.ent_settings_ads_login.entry.get().strip(),
+            "GOOGLE_ADS_CLIENT_ID": self.ent_settings_ads_client_id.entry.get().strip(),
+            "GOOGLE_ADS_CLIENT_SECRET": self.ent_settings_ads_client_secret.entry.get().strip(),
+            "GOOGLE_ADS_REFRESH_TOKEN": self.ent_settings_ads_refresh.entry.get().strip(),
+        }
         
-        # Save to AppData .env file
+        # Clean placeholders
+        for k, v in updates.items():
+            placeholder = getattr(getattr(self, f"ent_settings_{k.lower().replace('google_ads_', 'ads_').replace('reddit_client_', 'reddit_')}", None), "placeholder", "")
+            if v == placeholder:
+                updates[k] = ""
+
+        # Update environment variables in-process
+        for k, v in updates.items():
+            os.environ[k] = v
+
+        # Read and modify .env in-place to preserve comments and formatting
         env_path = ENV_PATH
         lines = []
-        replaced = False
+        seen_keys = set()
+        
         if os.path.exists(env_path):
             try:
                 with open(env_path, "r", encoding="utf-8") as f:
                     for line in f:
-                        if line.strip().startswith("SERP_API_KEY="):
-                            lines.append(f"SERP_API_KEY={new_key}\n")
-                            replaced = True
+                        line_strip = line.strip()
+                        if "=" in line_strip and not line_strip.startswith("#"):
+                            key_part, val_part = line_strip.split("=", 1)
+                            key_part = key_part.strip()
+                            if key_part in updates:
+                                lines.append(f"{key_part}={updates[key_part]}\n")
+                                seen_keys.add(key_part)
+                            else:
+                                lines.append(line)
                         else:
                             lines.append(line)
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to read .env file: {e}")
                 return
         
-        if not replaced:
-            lines.append(f"\nSERP_API_KEY={new_key}\n")
-            
+        # Append any updates that weren't seen in the existing .env
+        for k, v in updates.items():
+            if k not in seen_keys:
+                lines.append(f"{k}={v}\n")
+                
         try:
+            os.makedirs(os.path.dirname(env_path), exist_ok=True)
             with open(env_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to write to .env file: {e}")
             return
             
-        # Update current environment variable and reload configuration
-        os.environ["SERP_API_KEY"] = new_key
         try:
             # Re-read dotenv
             load_dotenv(dotenv_path=ENV_PATH, override=True)
@@ -2869,7 +2981,7 @@ del "%~f0"
         except Exception as e:
             pass
             
-        messagebox.showinfo("Success", "SerpAPI Key updated successfully!")
+        messagebox.showinfo("Success", "All settings and API keys updated successfully!")
 
     def open_app_directory(self):
         try:
