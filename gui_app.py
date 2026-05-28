@@ -42,7 +42,7 @@ from app.config import ENV_PATH, ENV_DIR, APP_LOG_PATH
 load_dotenv(dotenv_path=ENV_PATH)
 
 # Application Versioning & Auto-Update Configuration
-APP_VERSION = "1.0.4"
+APP_VERSION = "1.0.5"
 GITHUB_USER = os.getenv("GITHUB_USER", "Somuchamp")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "Content_proto")
 
@@ -2786,7 +2786,7 @@ del "%~f0"
             card = tk.Frame(parent, bg=BG_SECONDARY, bd=0, highlightbackground=BG_BORDER, highlightthickness=1)
             card.pack(fill="x", pady=10, ipady=10)
             
-            header = tk.Frame(card, bg=BG_SECONDARY, padx=25, pady=(15, 10))
+            header = tk.Frame(card, bg=BG_SECONDARY, padx=25, pady=15)
             header.pack(fill="x")
             
             tk.Label(header, text=title, font=("Segoe UI", 12, "bold"), fg=ACCENT_CYAN, bg=BG_SECONDARY, anchor="w").pack(fill="x")
