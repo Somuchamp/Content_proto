@@ -1,3 +1,13 @@
+---
+title: Content Studio AI
+emoji: ✨
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 8501
+pinned: false
+---
+
 # E-Commerce Content Generation Tool
 
 Automatically generates **SEO-optimized, heading-based content** for category and brand pages by:
