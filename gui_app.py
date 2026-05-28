@@ -704,7 +704,7 @@ class ContentGeneratorApp:
         """Displays a premium custom update prompt modal aligned with Content Studio AI's neon styling."""
         dialog = tk.Toplevel(self.root)
         dialog.title("🚀 Update Available")
-        dialog.geometry("520x380")
+        dialog.geometry("520x450")
         dialog.configure(bg=BG_PRIMARY)
         dialog.resizable(False, False)
         
@@ -714,7 +714,7 @@ class ContentGeneratorApp:
         
         # Center dialog relative to main window
         x = self.root.winfo_x() + (self.root.winfo_width() - 520) // 2
-        y = self.root.winfo_y() + (self.root.winfo_height() - 380) // 2
+        y = self.root.winfo_y() + (self.root.winfo_height() - 450) // 2
         dialog.geometry(f"+{max(0, x)}+{max(0, y)}")
         
         # Aesthetic top neon line
@@ -756,9 +756,16 @@ class ContentGeneratorApp:
         )
         lbl_notes.pack(anchor="w", pady=(0, 5))
         
-        # Release Notes Text Area (Scrollable text read-only)
+        # Control Buttons Panel - Packed FIRST at bottom so it is never pushed off screen
+        btn_panel = tk.Frame(content_frame, bg=BG_PRIMARY)
+        btn_panel.pack(fill="x", side="bottom", pady=(15, 0))
+        
+        # Progress bar (initially hidden) - Packed at bottom
+        progress_frame = tk.Frame(content_frame, bg=BG_PRIMARY)
+        
+        # Release Notes Text Area (Scrollable text read-only) - Packed LAST with expand=True to occupy remaining space
         notes_frame = tk.Frame(content_frame, bg=BG_SECONDARY, bd=1, highlightbackground=BG_BORDER, highlightthickness=1)
-        notes_frame.pack(fill="both", expand=True, pady=(0, 20))
+        notes_frame.pack(fill="both", expand=True, pady=(0, 5))
         
         from tkinter import scrolledtext
         notes_text = scrolledtext.ScrolledText(
@@ -775,13 +782,6 @@ class ContentGeneratorApp:
         notes_text.pack(fill="both", expand=True)
         notes_text.insert("1.0", changelog)
         notes_text.configure(state="disabled")
-        
-        # Control Buttons Panel
-        btn_panel = tk.Frame(content_frame, bg=BG_PRIMARY)
-        btn_panel.pack(fill="x", side="bottom")
-        
-        # Progress bar (initially hidden)
-        progress_frame = tk.Frame(content_frame, bg=BG_PRIMARY)
         
         def start_download():
             btn_panel.pack_forget()
