@@ -1,0 +1,77 @@
+name: Compile Windows Desktop App & Release
+
+# Trigger the workflow when:
+# 1. A new version tag is pushed (e.g., v1.0.0, v1.2.5)
+# 2. Triggered manually via GitHub Action's Web Interface
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+# Grant repository write permissions to publish Releases and upload assets
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Compile & Distribute App
+    runs-on: windows-latest
+
+    steps:
+      # Step 1: Checkout the workspace code
+      - name: Checkout Codebase
+        uses: actions/checkout@v3
+
+      # Step 2: Install and configure Python 3.11
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      # Step 3: Install all required pip packages
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      # Step 4: Compile gui_app.py using the native Windows build script
+      - name: Run PyInstaller Compilation Engine
+        run: |
+          python build_exe.py
+        shell: pwsh
+
+      # Step 5: Verify the compiled executable exists
+      - name: Verify Executable Built
+        run: |
+          if (Test-Path "dist/Content_Studio_AI.exe") {
+            echo "[+] Standalone executable compiled successfully!"
+          } else {
+            echo "[!] Error: Standalone executable missing!"
+            exit 1
+          }
+        shell: pwsh
+
+      # Step 6: Create a new GitHub Release and upload the standalone .exe asset
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/Content_Studio_AI.exe
+          tag_name: ${{ github.ref_name }}
+          name: Content Studio AI Release ${{ github.ref_name }}
+          body: |
+            ## 🚀 Content Studio AI - Windows Desktop Update
+            
+            This is an automated compilation of the standalone Windows Desktop application.
+            
+            ### 📦 Download Instructions:
+            1. Download the **`Content_Studio_AI.exe`** file below.
+            2. Run it locally on your Windows 10/11 system.
+            
+            *Automatically compiled and deployed by GitHub Actions CI/CD.*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

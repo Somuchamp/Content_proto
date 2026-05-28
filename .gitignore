@@ -1,0 +1,38 @@
+# === Credentials & Secrets ===
+.env
+.env.example
+
+# === Python Virtual Environments & Packages ===
+.venv/
+venv/
+env/
+ENV/
+pyvenv.cfg
+.python-version
+
+# === Python Cache & Compiled Files ===
+__pycache__/
+*.py[cod]
+*$py.class
+
+# === PyInstaller & Desktop App Compilation ===
+build/
+dist/
+dist_installer/
+*.spec
+*.iss
+
+# === Local Data Caching & Databases ===
+data/
+*.csv
+*.json
+
+# === Application Logs ===
+*.log
+app.log
+
+# === System Files ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

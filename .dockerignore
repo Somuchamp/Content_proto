@@ -1,0 +1,36 @@
+# Ignore local secret environment files
+.env
+.env.example
+
+# Ignore Python dependencies and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore PyInstaller compilation directories and specs
+build/
+dist/
+dist_installer/
+*.spec
+*.iss
+gui_app.py
+build_exe.py
+
+# Ignore local database cache
+data/
+*.csv
+*.json
+*.log
+
+# Ignore local Git config and IDE files
+.git/
+.gitignore
+.dockerignore
+.github/
+.vscode/
+.idea/
+.streamlit/
