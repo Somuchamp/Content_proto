@@ -42,7 +42,7 @@ from app.config import ENV_PATH, ENV_DIR, APP_LOG_PATH
 load_dotenv(dotenv_path=ENV_PATH)
 
 # Application Versioning & Auto-Update Configuration
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.3"
 GITHUB_USER = os.getenv("GITHUB_USER", "Somuchamp")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "Content_proto")
 
