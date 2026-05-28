@@ -42,7 +42,7 @@ from app.config import ENV_PATH, ENV_DIR, APP_LOG_PATH
 load_dotenv(dotenv_path=ENV_PATH)
 
 # Application Versioning & Auto-Update Configuration
-APP_VERSION = "1.0.5"
+APP_VERSION = "1.0.6"
 GITHUB_USER = os.getenv("GITHUB_USER", "Somuchamp")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "Content_proto")
 
@@ -2821,6 +2821,7 @@ del "%~f0"
         # -------------------------------------------------------------
         card_core = create_section_card(scroll_frame, "🤖 Core AI & Search Engines", "Configure your core content synthesis, search rankings, and keyword suggestion settings.")
         self.ent_settings_openai = create_api_row(card_core, "OpenAI API Key", "Required to draft the final markdown copy, answer custom user prompts, and extract main keyword ideas.", "OPENAI_API_KEY", "e.g., sk-proj-...")
+        self.ent_settings_openai_base = create_api_row(card_core, "OpenAI API Base URL (Optional Proxy)", "Override standard OpenAI API endpoint (useful to bypass firewall or regional blocks).", "OPENAI_API_BASE", "e.g., https://api.openai-proxy.com/v1")
         self.ent_settings_serp = create_api_row(card_core, "SerpAPI Key", "Required to query live Google organic listings, shopping products, inline videos, and search autocompletes.", "SERP_API_KEY", "e.g., your_serp_api_key")
         self.ent_settings_dataforseo = create_api_row(card_core, "DataForSEO API Key", "Required for search volume analysis and related keywords suggestions.", "DATAFORSEO_API_KEY", "e.g., your_dataforseo_api_key")
 
@@ -2912,6 +2913,7 @@ del "%~f0"
         # Collect all inputs
         updates = {
             "OPENAI_API_KEY": self.ent_settings_openai.entry.get().strip(),
+            "OPENAI_API_BASE": self.ent_settings_openai_base.entry.get().strip(),
             "SERP_API_KEY": self.ent_settings_serp.entry.get().strip(),
             "DATAFORSEO_API_KEY": self.ent_settings_dataforseo.entry.get().strip(),
             "YOUTUBE_API_KEY": self.ent_settings_youtube.entry.get().strip(),

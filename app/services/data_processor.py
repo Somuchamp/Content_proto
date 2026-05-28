@@ -54,7 +54,11 @@ class DataProcessor:
     """
 
     def __init__(self):
-        self.client = OpenAI(api_key=get_settings().OPENAI_API_KEY)
+        settings = get_settings()
+        kwargs = {"api_key": settings.OPENAI_API_KEY}
+        if settings.OPENAI_API_BASE:
+            kwargs["base_url"] = settings.OPENAI_API_BASE
+        self.client = OpenAI(**kwargs)
 
     # ──────────────────────────────────────────────────────────────────────
     # REDDIT TREND MINING

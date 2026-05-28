@@ -72,6 +72,7 @@ class Settings(BaseSettings):
     REDDIT_CLIENT_SECRET: str = ""
     REDDIT_USER_AGENT: str = "ecom-content-tool/1.0"
     OPENAI_API_KEY: str = ""
+    OPENAI_API_BASE: str = ""
 
     CSV_DIR: str = os.path.join(APP_DATA_DIR, "csv")
     JSON_DIR: str = os.path.join(APP_DATA_DIR, "json")
@@ -84,6 +85,7 @@ class Settings(BaseSettings):
         self.REDDIT_CLIENT_ID = self.REDDIT_CLIENT_ID.strip() if self.REDDIT_CLIENT_ID else ""
         self.REDDIT_CLIENT_SECRET = self.REDDIT_CLIENT_SECRET.strip() if self.REDDIT_CLIENT_SECRET else ""
         self.OPENAI_API_KEY = self.OPENAI_API_KEY.strip() if self.OPENAI_API_KEY else ""
+        self.OPENAI_API_BASE = self.OPENAI_API_BASE.strip() if self.OPENAI_API_BASE else ""
 
     class Config:
         env_file = ENV_PATH
