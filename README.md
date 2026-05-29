@@ -1,11 +1,5 @@
 ---
-title: Content Studio AI
-emoji: ✨
-colorFrom: indigo
-colorTo: blue
-sdk: docker
-app_port: 8501
-pinned: false
+Title: Content Studio AI(All in One Content Generator tool)
 ---
 
 # ✦ E-Commerce Content Studio AI
